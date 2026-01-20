@@ -10,6 +10,47 @@ import java.net.*;
 import java.io.*;
 
 public class SiriServer {
+    static final String KEY = "TMU";
+
+    //repeats key so it is same length as input
+    static String makeKey(String str){
+        String keyMod = KEY;
+        int keyLength = KEY.length();
+        //
+        for(int i=0;keyMod.length()< str.length(); i++){
+            int place = i % keyLength; //makes it so place cycles thru 0,1,2
+            keyMod+=(KEY.charAt(place));
+
+        }
+        return keyMod;
+    }
+
+    static String encrypt(String str, String keyShort){
+        String encryptMsg = "";
+        String key = makeKey(keyShort);
+        str = str.toUpperCase();
+        for(int i=0; i<str.length(); i++){
+            int x = (str.charAt(i) + key.charAt(i)) % 26; //formula to encrpyt message 
+
+            x+= 'A'; //converts int to char, add val of x to A (65)
+            encryptMsg += (char)(x);
+        }
+        return encryptMsg;
+    }
+
+    static String decrypt(String str, String keyShort){
+        String decryptMsg = "";
+        String key = makeKey(keyShort);
+        str = str.toUpperCase();
+        for(int i=0; i<str.length(); i++){
+            int x = (str.charAt(i) - key.charAt(i) + 26 ) % 26; //formula to encrpyt message 
+
+            x+= 'A'; //converts int to char, add val of x to A (65)
+            decryptMsg += (char)(x);
+        }
+        return decryptMsg;
+    }
+
     public static void main(String[] args) throws IOException {
         
         if (args.length != 1) {
@@ -33,12 +74,20 @@ public class SiriServer {
                 // Initiate conversation with client
                 SiriProtocol kkp = new SiriProtocol();
                 outputLine = kkp.processInput(null);
-                out.println(outputLine);
+                String encPrompt = encrypt(outputLine, KEY);
+                out.println(encPrompt);
 
                 while ((inputLine = in.readLine()) != null) {
-                    outputLine = kkp.processInput(inputLine);
-                    out.println(outputLine);
-                    if (outputLine.equals("Bye."))
+                    System.out.println("encrypted from client:" + inputLine);
+
+                    String deMsg = decrypt(inputLine, KEY);
+                    System.out.println("decrypted from client:" + deMsg);
+
+                    outputLine = kkp.processInput(deMsg);
+                    String enMsg = encrypt(outputLine, KEY);
+                    out.println(enMsg);
+ 
+                    if (enMsg.equals("Bye."))
                        break;
                 }
             } catch (IOException e) {
