@@ -1,8 +1,8 @@
-package project.pkg1;
+package main;
 /*
 * COE 817 Lab 1 Project 1
 * SiriClient
-* Authors: Mukesh Sabesan, 
+* Authors: Mukesh Sabesan, Kiana Lee
 */
  
 import java.io.*;
@@ -88,8 +88,8 @@ public class SiriClient {
             while ((fromServer = in.readLine()) != null) {
                 System.out.println("Encrypted Server Msg: " + fromServer);
                 //-----------decrypt server------------------------------------
-                String decString = decrypt(fromServer, KEY); //encrpyt message with key of same length
-                System.out.println("Decrypted Server Msg:" + decString);
+                String decString = decrypt(fromServer, KEY); //encrypt message with key of same length
+                System.out.println("Decrypted Server Msg: " + decString);
 
                 if (decString.equals("BYE."))
                     break;
