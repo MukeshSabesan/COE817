@@ -24,6 +24,8 @@ java project.pkg1.SiriClient localhost <portnumber> or java project.pkg1.SiriCli
 
 java main.SiriClient localhost <portnumber> or java main.SiriClient 127.0.0.1 <portnumber> (Project 2)
 
-6. After this, you can ask any question you want from the client to the server, and the server should be able to respond.
+6. After this, you can ask any question you want from the client to the server, and the server should be able to respond. 
 
-7. To quit the connection from the client side, simply enter "quit" (ignore case) in the command line.
+7. Project 2 is able to support multiple clients, so multiple terminals can be opened using Step 2, and step 5 can be ran again.
+
+8. To quit the connection from the client side, simply enter "quit" (ignore case) in the command line.
