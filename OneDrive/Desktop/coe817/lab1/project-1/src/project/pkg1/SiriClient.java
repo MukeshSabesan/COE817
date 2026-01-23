@@ -26,27 +26,35 @@ public class SiriClient {
     }
     static String encrypt(String str, String keyShort){
         String encryptMsg = "";
-        String key = makeKey(keyShort);
+        String key = makeKey(str);
         str = str.toUpperCase();
+        
         for(int i=0; i<str.length(); i++){
-            int x = (str.charAt(i) + key.charAt(i)) % 26; //formula to encrpyt message 
-
-            x+= 'A'; //converts int to char, add val of x to A (65)
-            encryptMsg += (char)(x);
+            if(str.charAt(i) >= 'A' && str.charAt(i) <= 'Z'){
+                int x = (str.charAt(i) + key.charAt(i)) % 26; //formula to encrpyt message 
+                x+= 'A'; //converts int to char, add val of x to A (65)
+                encryptMsg += (char)(x);
+            }
+            else{
+                encryptMsg += (char)(str.charAt(i));
+            }
         }
         return encryptMsg;
     }
 
     static String decrypt(String str, String keyShort){
         String decryptMsg = "";
-        string key = makeKey(keyShort);
-
+        String key = makeKey(str);
         str = str.toUpperCase();
+        
         for(int i=0; i<str.length(); i++){
-            int x = (str.charAt(i) - key.charAt(i) + 26) % 26; //formula to encrpyt message 
-
-            x+= 'A'; //converts int to char, add val of x to A (65)
-            decryptMsg += (char)(x);
+            if(str.charAt(i) >= 'A' && str.charAt(i) <= 'Z'){
+                int x = (str.charAt(i) - key.charAt(i) + 26) % 26; //formula to encrpyt message 
+                x+= 'A'; //converts int to char, add val of x to A (65)
+                decryptMsg += (char)(x);
+            }else{
+                decryptMsg += (char)(str.charAt(i));
+            }   
         }
         return decryptMsg;
     }
