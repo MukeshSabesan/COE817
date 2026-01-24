@@ -2,7 +2,7 @@ package project.pkg1;
 /*
 * COE 817 Lab 1 Project 1
 * SiriServer
-* Authors: Mukesh Sabesan, 
+* Authors: Mukesh Sabesan, Kiana Lee
 */
 
 
