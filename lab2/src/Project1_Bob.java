@@ -11,7 +11,7 @@ public class Project1_Bob {
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = new ServerSocket(1234);
         System.out.println("Bob is waiting for Alice...");
-        Socket socket = serverSocket.accept();
+        Socket socket = serverSocket.accept(); //Bob is listening for Alice and accepts Alice's socket.
 
         DataInputStream in = new DataInputStream(socket.getInputStream());
         DataOutputStream out = new DataOutputStream(socket.getOutputStream());

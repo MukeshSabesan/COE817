@@ -18,12 +18,12 @@ public class Project1_Alice {
 
         // 1. Send Message 1: IDA || NA [cite: 26]
         String nonceA = "NA" + (int)(Math.random() * 1000);
-        String msg1 = ID_A + "||" + nonceA;
-        out.writeUTF(msg1);
-        System.out.println("Sent Message 1: " + msg1);
+        String msg1 = ID_A + "||" + nonceA; 
+        out.writeUTF(msg1); //message with ID of Alice and nonce is sent to Bob
+        System.out.println("Sent Message 1: " + msg1); //printed message
 
         // 2. Receive Message 2: NB || E(KAB, [IDB || NA]) [cite: 27, 54]
-        String msg2 = in.readUTF();
+        String msg2 = in.readUTF(); //Alice receives message from Bob
         System.out.println("Received Message 2: " + msg2);
         String[] parts = msg2.split("\\|\\|");
         String nonceB = parts[0];
