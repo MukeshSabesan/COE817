@@ -18,13 +18,13 @@ public class Project1_Bob {
         SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "DES");
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
-        // 1. Receive Message 1: IDA || NA [cite: 26, 54]
+        // 1. Receive Message 1: IDA || NA 
         String msg1 = in.readUTF();
         System.out.println("Received Message 1: " + msg1);
         String[] parts = msg1.split("\\|\\|");
         String nonceA = parts[1];
 
-        // 2. Send Message 2: NB || E(KAB, [IDB || NA]) [cite: 27, 54]
+        // 2. Send Message 2: NB || E(KAB, [IDB || NA]) 
         String nonceB = "NB" + (int)(Math.random() * 1000);
         String dataToEncrypt2 = ID_B + "||" + nonceA;
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -33,11 +33,11 @@ public class Project1_Bob {
         out.writeUTF(msg2);
         System.out.println("Sent Message 2: " + msg2);
 
-        // 3. Receive Message 3: E(KAB, [IDA || NB]) [cite: 29, 56]
+        // 3. Receive Message 3: E(KAB, [IDA || NB]) 
         String msg3 = in.readUTF();
         System.out.println("Received Message 3 (Encrypted): " + msg3);
 
-        // Decrypt and Verify Message 3 [cite: 57]
+        // Decrypt and Verify Message 3 
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         byte[] decrypted3Bytes = cipher.doFinal(Base64.getDecoder().decode(msg3));
         String decrypted3 = new String(decrypted3Bytes);

@@ -16,7 +16,7 @@ public class Project1_Alice {
         SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "DES");
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
 
-        // 1. Send Message 1: IDA || NA [cite: 26]
+        // 1. Send Message 1: IDA || NA 
         String nonceA = "NA" + (int)(Math.random() * 1000);
         String msg1 = ID_A + "||" + nonceA; 
         out.writeUTF(msg1); //message with ID of Alice and nonce is sent to Bob
@@ -29,7 +29,7 @@ public class Project1_Alice {
         String nonceB = parts[0];
         String encryptedPart2 = parts[1];
 
-        // Decrypt and Verify Message 2 [cite: 55]
+        // Decrypt and Verify Message 2 
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         byte[] decrypted2Bytes = cipher.doFinal(Base64.getDecoder().decode(encryptedPart2));
         String decrypted2 = new String(decrypted2Bytes);
@@ -38,7 +38,7 @@ public class Project1_Alice {
         if (decrypted2.contains(nonceA)) {
             System.out.println("Bob Verified. Preparing Message 3...");
 
-            // 3. Send Message 3: E(KAB, [IDA || NB]) [cite: 29]
+            // 3. Send Message 3: E(KAB, [IDA || NB]) 
             String dataToEncrypt3 = ID_A + "||" + nonceB;
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted3 = cipher.doFinal(dataToEncrypt3.getBytes());

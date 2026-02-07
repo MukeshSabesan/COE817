@@ -9,7 +9,6 @@
  */
 
 import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.*;
 import java.security.KeyFactory;
@@ -19,6 +18,9 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.nio.charset.StandardCharsets;
+
+
 
 public class Project2_Alice {
     private static final String KEY = "88888888"; 
@@ -72,13 +74,14 @@ public class Project2_Alice {
         // Decrypt and Verify Message 2 outer portion (E(PUA, E(PRB, NA))
         cipher.init(Cipher.DECRYPT_MODE, alicePrivateKey);
         byte[] outerDecrypted2Bytes = cipher.doFinal(Base64.getDecoder().decode(encryptedPart2));
-        String outerDecrypted = new String(outerDecrypted2Bytes);
-        // System.out.println("Outer Decrypted Message 2 (E(PUA, E(PRB, NA)): " + outerDecrypted);
+        // String outerDecrypted = new String(outerDecrypted2Bytes, StandardCharsets.UTF_8); (printing the outer decrypted message isn't needed)
+        //System.out.println("Outer Decrypted Message 2 (E(PUA, E(PRB, NA)): " + outerDecrypted);
         
         // Decrypt and Verify inner Message within Message 2: E(PRB, NA)
         cipher.init(Cipher.DECRYPT_MODE, bobPublicKey);
         byte[] innerDecrypted2Bytes = cipher.doFinal(outerDecrypted2Bytes);
-        String innerDecrypted = new String(innerDecrypted2Bytes);
+        String innerDecrypted = new String(innerDecrypted2Bytes, StandardCharsets.UTF_8);
+        System.out.println("Decrypted Message 2: " + innerDecrypted + "\n");
         
         // Bob's identity is verified by figuring out whether the inner encrypted message contains the Nonce of Alice.
         if (innerDecrypted.contains(nonceA)) {

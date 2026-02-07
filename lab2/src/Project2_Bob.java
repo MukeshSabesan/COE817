@@ -12,6 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -84,13 +85,14 @@ public class Project2_Bob {
         // Decrypt and Verify Message 3 outer part: E(PUB, E(PRA, NB))
         cipher.init(Cipher.DECRYPT_MODE, bobPrivateKey);
         byte[] outerdecrypted3Bytes = cipher.doFinal(Base64.getDecoder().decode(msg3));
-        String outerDecrypted = new String(outerdecrypted3Bytes);
+        //String outerDecrypted = new String(outerdecrypted3Bytes, StandardCharsets.UTF_8); (printing the outer decrypted message isn't needed)
         //System.out.println("Outer Decrypted Message 3: " + outerDecrypted);
         
         // Decrypt and Verify Message 3 inner part: E(PRA, NB)
         cipher.init(Cipher.DECRYPT_MODE, alicePublicKey);
         byte[] innerDecrypted3Bytes = cipher.doFinal(outerdecrypted3Bytes);
-        String innerDecrypted = new String(innerDecrypted3Bytes);
+        String innerDecrypted = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8);
+        System.out.println("Decrypted Message 3: " + innerDecrypted + "\n");
 
         if (innerDecrypted.contains(nonceB)) {
             System.out.println("Decrypted message 3 contains Nonce B.");
