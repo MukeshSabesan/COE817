@@ -5,7 +5,7 @@ import java.net.*;
 import java.util.Base64;
 
 public class Project1_Bob {
-    private static final String KEY = "88888888"; // 8-byte key for DES [cite: 24]
+    private static final String KEY = "88888888"; // 8-byte key for DES 
     private static final String ID_B = "BobServer";
 
     public static void main(String[] args) throws Exception {

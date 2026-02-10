@@ -22,7 +22,7 @@ public class Project1_Alice {
         out.writeUTF(msg1); //message with ID of Alice and nonce is sent to Bob
         System.out.println("Sent Message 1: " + msg1); //printed message
 
-        // 2. Receive Message 2: NB || E(KAB, [IDB || NA]) [cite: 27, 54]
+        // 2. Receive Message 2: NB || E(KAB, [IDB || NA]) 
         String msg2 = in.readUTF(); //Alice receives message from Bob
         System.out.println("Received Message 2: " + msg2);
         String[] parts = msg2.split("\\|\\|");
