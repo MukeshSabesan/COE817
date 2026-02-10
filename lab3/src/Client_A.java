@@ -88,7 +88,7 @@ public class Client_A {
         System.out.println("Received Message 3 (Encrypted): " + msg3);
         cipher.init(Cipher.DECRYPT_MODE, privateKeyA);
         byte[] decrypted3Bytes = cipher.doFinal(Base64.getDecoder().decode(msg3));
-        String nonceK_check = new String(decrypted1Bytes);
+        String nonceK_check = new String(decrypted3Bytes);
         System.out.println("Decrypted Message 3: " + nonceK_check);
         
         if (nonceK_check.contains(nonceK)) {
@@ -112,7 +112,7 @@ public class Client_A {
         String masterKey = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8);
         System.out.println("Decrypted Message 4: " + masterKey + "\n");
         
-        // PHASE 2 (Starts from here)
+        // PHASE 2 (Starts from here)       
         
     }
 }

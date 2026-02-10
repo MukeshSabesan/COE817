@@ -112,7 +112,7 @@ public class KDC_Server {
                 byte[] msg1Encrypt = cipher.doFinal(msg1.getBytes());
                 String msg1Final = Base64.getEncoder().encodeToString(msg1Encrypt);
                 out.writeUTF(msg1Final);
-                System.out.println("Sent Message 3: " + clientID + ": " + msg1Final + "\n");
+                System.out.println("Sent Message 1 to " + clientID + ": " + msg1Final + "\n");
              
                 
                 // Receive Message 2: E(PUK, [N_Client|| NK]) from Client
@@ -141,7 +141,7 @@ public class KDC_Server {
                 byte[] msg3Encrypt = cipher.doFinal(nonceK_received.getBytes());
                 String msg3Final = Base64.getEncoder().encodeToString(msg3Encrypt);
                 out.writeUTF(msg3Final);
-                System.out.println("Sent Message 3: " + clientID + ": " + msg3Final + "\n");
+                System.out.println("Sent Message 3 to " + clientID + ": " + msg3Final + "\n");
                 
                 // Send Message 4: E(PU_Client, E(PRK, K_Client)),  KDC sends its received Nonce back, to verify that there was no corruption.
                 // Encrypt the message
