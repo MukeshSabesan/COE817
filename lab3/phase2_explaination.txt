@@ -1,0 +1,13 @@
+socket program 
+- static maps across threads, all threads share same instance 
+- synchronized and notifyall() to have threads coordinated 
+
+protocol vulnerable: 
+
+not true encryption, key and plaintext visible in message, if intercepted they can get key and session key 
+- solution: AES encryption
+
+if old message is resent by attacker, client A may think its a new session key
+-solution: include timestamps in phase 2 messages 
+
+key 

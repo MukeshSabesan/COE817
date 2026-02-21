@@ -108,9 +108,37 @@ public class Client_B {
         cipher.init(Cipher.DECRYPT_MODE, kdcPublicKey);
         byte[] innerDecrypted3Bytes = cipher.doFinal(outerdecrypted4Bytes);
         // Master Key received from KDC Server
-        String masterKey = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8);
+        String masterKey = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8).replace("\0", "").trim();
         System.out.println("Decrypted Message 4: " + masterKey + "\n");
         
         // PHASE 2 (Starts from here)
+        System.out.println("=== Phase 2: Client B waiting for session key from KDC... ===\n");
+
+        // Receive E(KB, [KAB || IDA]) from KDC
+        String encMsg = in.readUTF();
+        System.out.println("Received from KDC (Encrypted): " + encMsg);
+
+        // Decrypt using master key KB
+        String decrypted     = KDC_Server.simDecrypt(masterKey, encMsg);
+        System.out.println("Decrypted: " + decrypted);
+
+        String[] phase2Parts = decrypted.split("\\|\\|");
+        String   KAB         = phase2Parts[0];
+        String   receivedIDA = phase2Parts[1];
+
+        System.out.println("Session Key KAB = " + KAB);
+        System.out.println("Received IDA    = " + receivedIDA);
+
+        // Verify IDA
+        if (receivedIDA.equals("Client A")) {
+            System.out.println("IDA verified. Session key KAB is trusted.\n");
+        } else {
+            System.out.println("WARNING: IDA mismatch! Possible replay/tampering attack.\n");
+        }
+
+        System.out.println("=== Phase 2 Complete. Client B holds session key KAB = " + KAB + " ===");
+
+        socket.close();
+        
     }
 }

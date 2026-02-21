@@ -27,6 +27,8 @@ public class Client_A {
      * @param args the command line arguments
      */
     private static final String ID_A = "Client A";
+    private static final String ID_B = "Client B";
+
     
     public static void main(String args[]) throws Exception{
         Socket socket = new Socket("localhost", 1234);
@@ -109,10 +111,43 @@ public class Client_A {
         cipher.init(Cipher.DECRYPT_MODE, kdcPublicKey);
         byte[] innerDecrypted3Bytes = cipher.doFinal(outerdecrypted4Bytes);
         // Master Key received from KDC Server
-        String masterKey = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8);
+        String masterKey = new String(innerDecrypted3Bytes, StandardCharsets.UTF_8).replace("\0", "").trim();
+
         System.out.println("Decrypted Message 4: " + masterKey + "\n");
         
-        // PHASE 2 (Starts from here)       
+        // PHASE 2 (Starts from here)  
+        System.out.println("=== Phase 2 Starting ===\n");
+
+        // Step 1: Send IDA and IDB to KDC
+        out.writeUTF(ID_A);
+        out.writeUTF(ID_B);
+        System.out.println("Sent IDA=" + ID_A + " and IDB=" + ID_B + " to KDC.\n");
+
+        // Step 2: Receive E(KA, [KAB || IDB]) from KDC
+        String encMsg = in.readUTF();
+        System.out.println("Received from KDC (Encrypted): " + encMsg);
+
+        // Step 3: Decrypt using master key KA
+        String decrypted = KDC_Server.simDecrypt(masterKey, encMsg);
+        System.out.println("Decrypted: " + decrypted);
+
+        String[] phase2Parts = decrypted.split("\\|\\|");
+        String   KAB         = phase2Parts[0];
+        String   receivedIDB = phase2Parts[1];
+
+        System.out.println("Session Key KAB = " + KAB);
+        System.out.println("Received IDB    = " + receivedIDB);
+
+        // Step 4: Verify IDB
+        if (receivedIDB.equals(ID_B)) {
+            System.out.println("IDB verified. Session key KAB is trusted.\n");
+        } else {
+            System.out.println("WARNING: IDB mismatch! Possible replay/tampering attack.\n");
+        }
+
+        System.out.println("=== Phase 2 Complete. Client A holds session key KAB = " + KAB + " ===");
+
+        socket.close();
         
     }
 }

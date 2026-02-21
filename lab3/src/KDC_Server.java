@@ -1,10 +1,6 @@
-
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
@@ -17,6 +13,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
@@ -38,6 +36,9 @@ public class KDC_Server {
     /**
      * @param args the command line arguments
      */
+    private static final Map<String, String> masterKeys = new HashMap<>();
+    private static final Map<String, DataOutputStream> clientOuts = new HashMap<>();
+  
     public static void main(String args[]) throws Exception {
         // TODO code application logic here
         
@@ -133,6 +134,7 @@ public class KDC_Server {
                 } else {
                     System.out.println("Authentication Failed!");
                     socket.close();
+                    return;
                 }
                 
                 // Send Message 3: E(PU_Client, NK),  KDC sends its received Nonce back, to verify that there was no corruption.
@@ -156,9 +158,79 @@ public class KDC_Server {
                 out.writeUTF(msg4Final);
                 System.out.println("Sent Message 4 to " + clientID + ": " + msg4Final + "\n");
                 
-                // PHASE 2 (Starts from here)
+                synchronized (masterKeys) {
+                    masterKeys.put(clientID, MasterKeyClient);
+                    clientOuts.put(clientID,out);
+                    masterKeys.notifyAll();
+                }
+
+                System.out.println("[Phase 1] complete for " + clientID + " Master Key = " + MasterKeyClient + "\n");
+               
                 
-            } 
+                // PHASE 2 (Starts from here)
+                System.out.println("=== Phase 2 Starting ===\n");
+
+                if (clientID.equals("Client A")) {
+                    // Receive IDA and IDB from Client A
+                    String rcvIDA = in.readUTF();
+                    String rcvIDB = in.readUTF();
+                    System.out.println("[Phase 2] KDC received IDA=" + rcvIDA
+                            + ", IDB=" + rcvIDB + " from Client A\n");
+
+                    // Wait until Client B's master key is also available
+                    synchronized (masterKeys) {
+                        while (!masterKeys.containsKey("Client B")) {
+                            try {
+                                masterKeys.wait();
+                            } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt(); 
+                                System.out.println("[Phase 2] Wait interrupted.");
+                            }
+                        }
+}
+
+                    String kaStr = masterKeys.get("Client A");
+                    String kbStr = masterKeys.get("Client B");
+
+                    // Generate session key KAB
+                    String KAB = "KAB" + (int) (Math.random() * 10000);
+                    System.out.println("[Phase 2] Generated session key KAB = " + KAB);
+
+                    // Send E(KA, [KAB || IDB]) to Client A
+                    String msgForA = KAB + "||" + rcvIDB;
+                    String encMsgForA = simEncrypt(kaStr, msgForA);
+                    out.writeUTF(encMsgForA);
+                    System.out.println("[Phase 2] Sent E(KA, [KAB, IDB]) to Client A\n");
+
+                    // Send E(KB, [KAB || IDA]) to Client B via B's stored output stream
+                    String msgForB = KAB + "||" + rcvIDA;
+                    String encMsgForB = simEncrypt(kbStr, msgForB);
+                    synchronized (clientOuts) {
+                        DataOutputStream outB = clientOuts.get("Client B");
+                        outB.writeUTF(encMsgForB);
+                        outB.flush();
+                    }
+                    System.out.println("[Phase 2] Sent E(KB, [KAB, IDA]) to Client B\n");
+                    System.out.println("[Phase 2] KDC Phase 2 complete. Session key distributed.");
+
+                } else {
+                     // Client B: hold socket open until Client A's thread pushes the message
+                    System.out.println("[Phase 2] KDC holding Client B connection open...");
+                    synchronized (masterKeys) {
+                        while (!masterKeys.containsKey("Phase2Done")) {
+                            try {
+                                masterKeys.wait(10000);
+                            } catch (InterruptedException ex) {
+                                Thread.currentThread().interrupt();
+                                System.out.println("[Phase 2] Wait interrupted.");
+                            }
+                        }
+                    }
+                    System.out.println("[Phase 2] Session key pushed to Client B. Done.");
+    
+                }
+             }
+                
             catch (IOException e) {
                 System.out.println("Client error: " + e.getMessage());
             } catch (NoSuchAlgorithmException ex) {
@@ -175,5 +247,17 @@ public class KDC_Server {
                 Logger.getLogger(KDC_Server.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
+    }
+    // Symmetric encryption helper 
+    static String simEncrypt(String key, String plaintext) {
+        return "ENC[" + key + "]:" + plaintext;
+    }
+
+    static String simDecrypt(String key, String ciphertext) {
+        String prefix = "ENC[" + key + "]:";
+        if (ciphertext.startsWith(prefix)) {
+            return ciphertext.substring(prefix.length());
+        }
+        throw new IllegalArgumentException("Decryption failed: wrong key or corrupted message.");
     }
 }
