@@ -152,7 +152,7 @@ public class KDC_server {
                     clientPubKeys.put(clientID, clientPublicKey);
                     masterKeys.notifyAll();
                 }
-                System.out.println("verified, client " + clientID + "\n");
+                System.out.println("Verified Client " + clientID + "\n");
 
                 // ── Distribute Group Key Ks ────────────────────────────
                 System.out.println("Distributing group key to " + clientID);
@@ -202,8 +202,8 @@ public class KDC_server {
                 System.out.println("starting chat forwarding for " + clientID);
                 while (true) {
                     try {
-                         // Protocol: E(Ks, [IDA, M])  and  SigA(IDA, M)  — no timestamp
-                        String encPayload = in.readUTF();  // E(Ks, [IDA, M])
+                         // Protocol: E(Ks, [IDA, M || T_Client])  and  SigA(IDA, M) 
+                        String encPayload = in.readUTF();  // E(Ks, [IDA, M || T_Client])
                         String signature  = in.readUTF();  // SigA(IDA, M)
 
                         System.out.println("Received chat message from " + clientID + " forwarding...");
@@ -221,6 +221,7 @@ public class KDC_server {
                                 }
                             }
                         }
+                        
                     } catch (IOException e) {
                         System.out.println("[KDC] " + clientID + " disconnected.");
                         break;

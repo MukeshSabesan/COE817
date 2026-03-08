@@ -19,7 +19,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class client {
+public class Attacker{
 
     private static final String KDC_HOST         = "localhost";
     private static final int    KDC_PORT          = 1234;
@@ -172,11 +172,8 @@ public class client {
     // A -> KDC : E(Ks, [IDA, M || T_Client]),  SigA(IDA, M)
     static void sendMessage(String message, DataOutputStream out) throws Exception {
         
-        // Add timestamp using local date and time from Client
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        
-        String timestamp = now.format(formatter);
+        // Use old timestamp to simulate replay attack.
+        String timestamp = "2026-03-08 16:56:01";
         // Plaintext inside the encryption: IDA || M
         String plaintext = myID + "||" + message;
         // Plaintext with time stamp IDA || M || T_Client
@@ -208,7 +205,6 @@ public class client {
 
         System.out.println("\n┌─ [" + myID + " SENT] ─────────────────────────────────────────");
         System.out.println("Message          : \"" + message + "\"");
-        System.out.println("Sent at          : \"" + timestamp + "\"");
         System.out.println("Plaintext        : " + plaintext);
         System.out.println("E(Ks,[IDA,M])    : " + encPayload.substring(0, Math.min(48, encPayload.length())) + "...");
         System.out.println("SigA(IDA,M)      : " + sigB64.substring(0, 32) + "\n");
@@ -251,7 +247,7 @@ public class client {
             // Verify SigA(IDA, M) with sender's public key 
             PublicKey senderPub = peerPublicKeys.get(senderID);
             String sigStatus;
-            if(!timestamp.isBefore(now.minusMinutes(10)) && !timestamp.isAfter(now)){
+            if(timestamp.equals(now)){
                 if (senderPub != null) {
                     Signature verifier = Signature.getInstance("SHA256withRSA");
                     verifier.initVerify(senderPub);
